@@ -6,10 +6,11 @@
 import React, { useState } from 'react';
 import { LiveTracker } from './components/LiveTracker';
 import { Dashboard } from './components/Dashboard';
-import { Activity, LayoutDashboard } from 'lucide-react';
+import { About } from './components/About';
+import { Activity, LayoutDashboard, Info } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'tracker' | 'dashboard'>('tracker');
+  const [activeTab, setActiveTab] = useState<'tracker' | 'dashboard' | 'about'>('tracker');
 
   return (
     <div 
@@ -51,13 +52,26 @@ export default function App() {
               <LayoutDashboard size={16} />
               <span>Dashboard</span>
             </button>
+            <button
+              onClick={() => setActiveTab('about')}
+              className={`flex-1 sm:flex-none flex justify-center items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'about' 
+                  ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Info size={16} />
+              <span>About</span>
+            </button>
           </div>
         </div>
       </header>
 
       <main className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-6xl mx-auto w-full">
-          {activeTab === 'tracker' ? <LiveTracker /> : <Dashboard />}
+          {activeTab === 'tracker' && <LiveTracker />}
+          {activeTab === 'dashboard' && <Dashboard />}
+          {activeTab === 'about' && <About />}
         </div>
       </main>
     </div>

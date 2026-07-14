@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as faceapi from '@vladmandic/face-api';
-import { Camera, CheckCircle2 } from 'lucide-react';
+import { Camera, CameraOff } from 'lucide-react';
 import { addLog } from '../store';
 import { Emotion } from '../types';
 
@@ -11,9 +11,11 @@ export function LiveTracker() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isCameraOn, setIsCameraOn] = useState(true);
   const [currentEmotion, setCurrentEmotion] = useState<{ emotion: string; confidence: number } | null>(null);
   const [allEmotions, setAllEmotions] = useState<Record<string, number>>({});
-  const [isLogging, setIsLogging] = useState(false);
+  
+  const lastLogTime = useRef<number>(0);
   
   // Load models
   useEffect(() => {
@@ -36,6 +38,7 @@ export function LiveTracker() {
     if (!isModelLoaded) return;
     
     let stream: MediaStream | null = null;
+    
     const startVideo = async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -44,16 +47,29 @@ export function LiveTracker() {
         }
       } catch (err) {
         console.error("Error accessing webcam:", err);
+        setIsCameraOn(false);
       }
     };
-    startVideo();
 
-    return () => {
+    const stopVideo = () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
       }
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
     };
-  }, [isModelLoaded]);
+
+    if (isCameraOn) {
+      startVideo();
+    } else {
+      stopVideo();
+    }
+
+    return () => {
+      stopVideo();
+    };
+  }, [isModelLoaded, isCameraOn]);
 
   const handleVideoPlay = () => {
     setIsPlaying(true);
@@ -93,6 +109,19 @@ export function LiveTracker() {
             confidence: dominant[1]
           });
           setAllEmotions(expressions as Record<string, number>);
+
+          // Auto-log every 3 seconds
+          const now = Date.now();
+          if (now - lastLogTime.current > 3000) {
+            addLog({
+              id: crypto.randomUUID(),
+              timestamp: now,
+              emotion: dominant[0] as Emotion,
+              confidence: dominant[1],
+              expressions: expressions as any
+            });
+            lastLogTime.current = now;
+          }
         } else {
           canvasRef.current.getContext('2d')?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
           setCurrentEmotion(null);
@@ -104,34 +133,6 @@ export function LiveTracker() {
     return () => clearInterval(interval);
   }, [isPlaying, isModelLoaded]);
   
-  const handleLogEmotion = async () => {
-    if (!currentEmotion || !videoRef.current) return;
-    
-    setIsLogging(true);
-    
-    // Do a fresh read to get full expressions
-    const detections = await faceapi.detectSingleFace(
-      videoRef.current,
-      new faceapi.TinyFaceDetectorOptions()
-    ).withFaceExpressions();
-    
-    if (detections) {
-      const expressions = detections.expressions;
-      const sorted = Object.entries(expressions).sort((a, b) => b[1] - a[1]);
-      const dominant = sorted[0];
-      
-      addLog({
-        id: crypto.randomUUID(),
-        timestamp: Date.now(),
-        emotion: dominant[0] as Emotion,
-        confidence: dominant[1],
-        expressions: expressions as any
-      });
-    }
-    
-    setTimeout(() => setIsLogging(false), 1000);
-  };
-
   return (
     <div className="flex flex-col items-center max-w-4xl mx-auto w-full p-4 space-y-6">
       <div className="text-center space-y-2">
@@ -161,10 +162,17 @@ export function LiveTracker() {
         />
         
         <div className="absolute top-4 left-4 z-20">
-            <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.6)]"></span>
-                <span className="text-[10px] text-gray-300 font-mono uppercase tracking-widest bg-black/50 px-2 py-1 rounded backdrop-blur">Camera Active</span>
-            </div>
+            {isCameraOn ? (
+              <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.6)]"></span>
+                  <span className="text-[10px] text-gray-300 font-mono uppercase tracking-widest bg-black/50 px-2 py-1 rounded backdrop-blur">Camera Active</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 opacity-50">
+                  <span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span>
+                  <span className="text-[10px] text-gray-300 font-mono uppercase tracking-widest bg-black/50 px-2 py-1 rounded backdrop-blur">Camera Offline</span>
+              </div>
+            )}
         </div>
       </div>
 
@@ -175,7 +183,12 @@ export function LiveTracker() {
               <Camera size={24} />
             </div>
             <div className="flex-1">
-              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-mono mb-1">Primary Emotion</p>
+              <div className="flex items-center gap-3 mb-1">
+                <p className="text-[10px] uppercase tracking-widest text-gray-400 font-mono">Primary Emotion</p>
+                {isCameraOn && currentEmotion && (
+                  <span className="text-[9px] uppercase tracking-widest text-blue-400 font-mono bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20 animate-pulse">Auto-capturing</span>
+                )}
+              </div>
               {currentEmotion ? (
                 <div className="flex items-baseline space-x-3">
                   <span className="text-2xl font-bold capitalize text-white">
@@ -192,17 +205,23 @@ export function LiveTracker() {
           </div>
           
           <button
-            onClick={handleLogEmotion}
-            disabled={!currentEmotion || isLogging}
-            className="w-full md:w-auto shrink-0 flex items-center justify-center space-x-2 bg-blue-500/20 hover:bg-blue-500/30 backdrop-blur-md border border-blue-400/40 disabled:bg-white/5 disabled:border-white/10 disabled:text-gray-600 text-blue-400 px-6 py-3 rounded-xl font-medium transition-all shadow-[0_0_10px_rgba(59,130,246,0.1)]"
+            onClick={() => setIsCameraOn(!isCameraOn)}
+            className={`w-full md:w-auto shrink-0 flex items-center justify-center space-x-2 backdrop-blur-md px-6 py-3 rounded-xl font-medium transition-all ${
+              isCameraOn 
+                ? 'bg-red-500/20 hover:bg-red-500/30 border border-red-400/40 text-red-400 shadow-[0_0_10px_rgba(248,113,113,0.1)]' 
+                : 'bg-green-500/20 hover:bg-green-500/30 border border-green-400/40 text-green-400 shadow-[0_0_10px_rgba(74,222,128,0.1)]'
+            }`}
           >
-            {isLogging ? (
+            {isCameraOn ? (
               <>
-                <CheckCircle2 size={20} className="text-green-400" />
-                <span className="text-green-400">Logged</span>
+                <CameraOff size={20} />
+                <span>Turn Camera Off</span>
               </>
             ) : (
-              <span>Capture Snapshot</span>
+              <>
+                <Camera size={20} />
+                <span>Turn Camera On</span>
+              </>
             )}
           </button>
         </div>
