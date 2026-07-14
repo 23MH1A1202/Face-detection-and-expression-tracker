@@ -19,8 +19,8 @@ export default function App() {
         backgroundImage: 'radial-gradient(circle at 0% 0%, #1a1c2e 0%, transparent 50%), radial-gradient(circle at 100% 100%, #1a1c2e 0%, transparent 50%), radial-gradient(circle at 50% 50%, #0c0d12 0%, #141625 100%)'
       }}
     >
-      <header className="h-16 px-4 md:px-8 flex items-center justify-between backdrop-blur-md bg-white/5 border-b border-white/10 shrink-0 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto w-full h-16 flex items-center justify-between">
+      <header className="py-4 md:h-16 px-4 md:px-8 flex items-center justify-between backdrop-blur-md bg-white/5 border-b border-white/10 shrink-0 sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
               <Activity size={18} className="text-white" />
@@ -28,10 +28,10 @@ export default function App() {
             <h1 className="font-bold text-xl tracking-tight">EmotionTracker</h1>
           </div>
           
-          <div className="flex p-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl">
+          <div className="flex p-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl self-start sm:self-auto overflow-x-auto w-full sm:w-auto">
             <button
               onClick={() => setActiveTab('tracker')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 sm:flex-none flex justify-center items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 activeTab === 'tracker' 
                   ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
                   : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -42,7 +42,7 @@ export default function App() {
             </button>
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 sm:flex-none flex justify-center items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 activeTab === 'dashboard' 
                   ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' 
                   : 'text-gray-400 hover:text-white hover:bg-white/5'

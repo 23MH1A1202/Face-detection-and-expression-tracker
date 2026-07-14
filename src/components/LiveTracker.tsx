@@ -12,6 +12,7 @@ export function LiveTracker() {
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentEmotion, setCurrentEmotion] = useState<{ emotion: string; confidence: number } | null>(null);
+  const [allEmotions, setAllEmotions] = useState<Record<string, number>>({});
   const [isLogging, setIsLogging] = useState(false);
   
   // Load models
@@ -91,9 +92,11 @@ export function LiveTracker() {
             emotion: dominant[0],
             confidence: dominant[1]
           });
+          setAllEmotions(expressions as Record<string, number>);
         } else {
           canvasRef.current.getContext('2d')?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
           setCurrentEmotion(null);
+          setAllEmotions({});
         }
       }
     }, 200);
@@ -165,13 +168,13 @@ export function LiveTracker() {
         </div>
       </div>
 
-      <div className="w-full max-w-2xl backdrop-blur-xl bg-white/5 rounded-3xl border border-white/10 p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-blue-500/20 border border-blue-400/30 rounded-xl flex items-center justify-center text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+      <div className="w-full max-w-2xl backdrop-blur-xl bg-white/5 rounded-3xl border border-white/10 p-4 md:p-6 shadow-xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-center space-x-4 w-full md:w-auto">
+            <div className="w-12 h-12 shrink-0 bg-blue-500/20 border border-blue-400/30 rounded-xl flex items-center justify-center text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
               <Camera size={24} />
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-[10px] uppercase tracking-widest text-gray-400 font-mono mb-1">Primary Emotion</p>
               {currentEmotion ? (
                 <div className="flex items-baseline space-x-3">
@@ -191,7 +194,7 @@ export function LiveTracker() {
           <button
             onClick={handleLogEmotion}
             disabled={!currentEmotion || isLogging}
-            className="flex items-center space-x-2 bg-blue-500/20 hover:bg-blue-500/30 backdrop-blur-md border border-blue-400/40 disabled:bg-white/5 disabled:border-white/10 disabled:text-gray-600 text-blue-400 px-6 py-3 rounded-xl font-medium transition-all shadow-[0_0_10px_rgba(59,130,246,0.1)]"
+            className="w-full md:w-auto shrink-0 flex items-center justify-center space-x-2 bg-blue-500/20 hover:bg-blue-500/30 backdrop-blur-md border border-blue-400/40 disabled:bg-white/5 disabled:border-white/10 disabled:text-gray-600 text-blue-400 px-6 py-3 rounded-xl font-medium transition-all shadow-[0_0_10px_rgba(59,130,246,0.1)]"
           >
             {isLogging ? (
               <>
@@ -203,6 +206,31 @@ export function LiveTracker() {
             )}
           </button>
         </div>
+
+        {Object.keys(allEmotions).length > 0 && (
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <p className="text-[10px] uppercase tracking-widest text-gray-400 font-mono mb-4">Micro-Expressions</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(allEmotions)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 4) // Show top 4
+                .map(([emotion, value]) => (
+                  <div key={emotion} className="space-y-1">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="capitalize text-gray-300">{emotion}</span>
+                      <span className="text-gray-400 font-mono">{Math.round(value * 100)}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-blue-400 transition-all duration-200" 
+                        style={{ width: `${value * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
