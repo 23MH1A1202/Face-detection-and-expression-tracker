@@ -4,12 +4,13 @@ import { Camera, CameraOff } from 'lucide-react';
 import { addLog } from '../store';
 import { Emotion } from '../types';
 
-const MODEL_URL = '/models';
+const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
 
 export function LiveTracker() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [modelError, setModelError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [currentEmotion, setCurrentEmotion] = useState<{ emotion: string; confidence: number } | null>(null);
@@ -28,6 +29,7 @@ export function LiveTracker() {
         setIsModelLoaded(true);
       } catch (e) {
         console.error("Error loading models:", e);
+        setModelError(e instanceof Error ? e.message : String(e));
       }
     };
     loadModels();
@@ -141,13 +143,23 @@ export function LiveTracker() {
       </div>
 
       <div className="relative rounded-3xl overflow-hidden bg-black border border-white/10 shadow-2xl w-full max-w-2xl aspect-video flex items-center justify-center">
-        {!isModelLoaded && (
+        {!isModelLoaded && !modelError && (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-20 bg-[#1a1b26]/80 backdrop-blur-sm">
             <div className="w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4 shadow-[0_0_8px_cyan]"></div>
             <p className="text-sm font-mono tracking-widest text-cyan-400">LOADING NEURAL NET...</p>
           </div>
         )}
         
+        {modelError && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white z-20 bg-[#1a1b26]/80 backdrop-blur-sm px-6 text-center">
+            <div className="text-red-400 mb-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            </div>
+            <p className="text-sm font-medium text-red-400 mb-1">Failed to load models</p>
+            <p className="text-xs text-gray-400 font-mono break-all">{modelError}</p>
+          </div>
+        )}
+
         <video 
           ref={videoRef}
           autoPlay 
