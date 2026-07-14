@@ -1,0 +1,10 @@
+{
+  "name": "Emotion Tracker",
+  "description": "Deep learning face detection and emotion logging dashboard",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
