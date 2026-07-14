@@ -4,7 +4,7 @@ import { Camera, CameraOff } from 'lucide-react';
 import { addLog } from '../store';
 import { Emotion } from '../types';
 
-const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+const MODEL_URL = '/models';
 
 export function LiveTracker() {
   const videoRef = useRef<HTMLVideoElement>(null);

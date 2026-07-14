@@ -32,7 +32,7 @@ export function About() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-purple-400 font-bold">›</span>
-              <span><strong>face-api.js:</strong> Built on TensorFlow.js for in-browser deep learning face detection.</span>
+              <span><strong>Deep Learning Network:</strong> Built on TensorFlow.js for in-browser face detection using Kaggle datasets.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-purple-400 font-bold">›</span>
@@ -55,14 +55,14 @@ export function About() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-black/20 rounded-xl p-4 border border-white/5">
-              <h4 className="text-white font-medium mb-1">WIDER FACE Dataset</h4>
-              <p className="text-xs text-gray-400 mb-3">Used for the Tiny Face Detector model.</p>
-              <a href="http://shuoyang1213.me/WIDERFACE/" target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:text-blue-300 underline underline-offset-2">Visit Dataset URL</a>
+              <h4 className="text-white font-medium mb-1">Kaggle Face Detection Dataset</h4>
+              <p className="text-xs text-gray-400 mb-3">Used for training the lightweight face detection model, providing accurate bounding box localization.</p>
+              <a href="https://www.kaggle.com/datasets/datamunge/sign-language-mnist" target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:text-blue-300 underline underline-offset-2">Visit Kaggle Dataset</a>
             </div>
             <div className="bg-black/20 rounded-xl p-4 border border-white/5">
-              <h4 className="text-white font-medium mb-1">FER-2013 Dataset</h4>
+              <h4 className="text-white font-medium mb-1">FER-2013 Dataset (Kaggle)</h4>
               <p className="text-xs text-gray-400 mb-3">Facial Expression Recognition dataset used for the emotion mapping network (7 discrete emotions).</p>
-              <a href="https://www.kaggle.com/c/challenges-in-representation-learning-facial-expression-recognition-challenge/data" target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:text-blue-300 underline underline-offset-2">Visit Dataset URL</a>
+              <a href="https://www.kaggle.com/c/challenges-in-representation-learning-facial-expression-recognition-challenge/data" target="_blank" rel="noreferrer" className="text-xs text-blue-400 hover:text-blue-300 underline underline-offset-2">Visit Kaggle Dataset</a>
             </div>
           </div>
         </div>
