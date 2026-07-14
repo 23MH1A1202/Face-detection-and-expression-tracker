@@ -5,7 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: './',
+    base: '/Face-detection-and-expression-tracker/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
