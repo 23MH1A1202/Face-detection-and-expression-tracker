@@ -56,7 +56,7 @@ export function Dashboard() {
 
   const distributionData = Object.entries(distributionMap).map(([emotion, count]) => ({
     name: emotion,
-    count
+    count: count as number
   })).sort((a, b) => b.count - a.count);
 
   if (logs.length === 0) {

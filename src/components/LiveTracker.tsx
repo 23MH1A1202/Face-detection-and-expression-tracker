@@ -103,14 +103,15 @@ export function LiveTracker() {
           
           // Find dominant emotion
           const expressions = detection.expressions;
-          const sorted = Object.entries(expressions).sort((a, b) => b[1] - a[1]);
+          const expressionsMap = expressions as unknown as Record<string, number>;
+          const sorted = Object.entries(expressionsMap).sort((a, b) => (b[1] as number) - (a[1] as number));
           const dominant = sorted[0];
           
           setCurrentEmotion({
             emotion: dominant[0],
-            confidence: dominant[1]
+            confidence: dominant[1] as number
           });
-          setAllEmotions(expressions as Record<string, number>);
+          setAllEmotions(expressionsMap);
 
           // Auto-log every 3 seconds
           const now = Date.now();
@@ -243,18 +244,18 @@ export function LiveTracker() {
             <p className="text-[10px] uppercase tracking-widest text-gray-400 font-mono mb-4">Micro-Expressions</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Object.entries(allEmotions)
-                .sort((a, b) => b[1] - a[1])
+                .sort((a, b) => (b[1] as number) - (a[1] as number))
                 .slice(0, 4) // Show top 4
                 .map(([emotion, value]) => (
                   <div key={emotion} className="space-y-1">
                     <div className="flex justify-between text-xs mb-1">
                       <span className="capitalize text-gray-300">{emotion}</span>
-                      <span className="text-gray-400 font-mono">{Math.round(value * 100)}%</span>
+                      <span className="text-gray-400 font-mono">{Math.round((value as number) * 100)}%</span>
                     </div>
                     <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-blue-400 transition-all duration-200" 
-                        style={{ width: `${value * 100}%` }}
+                        style={{ width: `${(value as number) * 100}%` }}
                       ></div>
                     </div>
                   </div>
