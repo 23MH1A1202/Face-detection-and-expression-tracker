@@ -18,6 +18,9 @@ export default defineConfig(({ command }) => {
           short_name: 'FaceSense AI',
           description: 'Live facial expression tracking and emotion recognition in the browser',
           theme_color: '#1a1b26',
+          background_color: '#1a1b26',
+          display: 'standalone',
+          start_url: '.',
           icons: [
             {
               src: 'pwa-192x192.png',
